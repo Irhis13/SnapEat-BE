@@ -7,9 +7,13 @@ import com.dam.web_cocina.entity.User;
 import com.dam.web_cocina.mapper.RecipeMapper;
 import com.dam.web_cocina.repository.RecipeRepository;
 import com.dam.web_cocina.repository.UserRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RecipeServiceImpl implements IRecipeService {
@@ -84,6 +88,16 @@ public class RecipeServiceImpl implements IRecipeService {
     public List<RecipeResponseDTO> findByIngredient(String ingredient) {
         return recipeRepository.findByIngredientsContainingIgnoreCase(ingredient)
                 .stream()
+                .map(RecipeMapper::toDTO)
+                .toList();
+    }
+
+    @Override
+    public List<RecipeResponseDTO> findLastRecipes() {
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        List<Recipe> recetas = recipeRepository.findAll(pageable).getContent();
+
+        return recetas.stream()
                 .map(RecipeMapper::toDTO)
                 .toList();
     }

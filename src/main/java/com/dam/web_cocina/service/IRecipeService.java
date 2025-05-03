@@ -20,4 +20,6 @@ public interface IRecipeService {
     List<RecipeResponseDTO> findByTitle(String title);
 
     List<RecipeResponseDTO> findByIngredient(String ingredient);
+
+    List<RecipeResponseDTO> findLastRecipes();
 }

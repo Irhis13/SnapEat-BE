@@ -59,4 +59,9 @@ public class RecipeController {
     public List<RecipeResponseDTO> getByAuthor(@PathVariable Long authorId) {
         return recipeService.findByAuthorId(authorId);
     }
+
+    @GetMapping("/latest")
+    public List<RecipeResponseDTO> getLastRecipes() {
+        return recipeService.findLastRecipes();
+    }
 }
