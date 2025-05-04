@@ -54,10 +54,7 @@ public class RecipeServiceImpl implements IRecipeService {
 
     @Override
     public List<RecipeResponseDTO> findAll() {
-        return recipeRepository.findAll()
-                .stream()
-                .map(RecipeMapper::toDTO)
-                .toList();
+        return RecipeMapper.toDTOList(recipeRepository.findAll());
     }
 
     @Override
@@ -69,45 +66,28 @@ public class RecipeServiceImpl implements IRecipeService {
 
     @Override
     public List<RecipeResponseDTO> findByAuthorId(Long authorId) {
-        return recipeRepository.findByAuthorId(authorId)
-                .stream()
-                .map(RecipeMapper::toDTO)
-                .toList();
+        return RecipeMapper.toDTOList(recipeRepository.findByAuthorId(authorId));
     }
 
     @Override
     public List<RecipeResponseDTO> findByTitle(String title) {
-        return recipeRepository.findByTitleContainingIgnoreCase(title)
-                .stream()
-                .map(RecipeMapper::toDTO)
-                .toList();
+        return RecipeMapper.toDTOList(recipeRepository.findByTitleContainingIgnoreCase(title));
     }
 
     @Override
     public List<RecipeResponseDTO> findByIngredient(String ingredient) {
-        return recipeRepository.findByIngredientsContainingIgnoreCase(ingredient)
-                .stream()
-                .map(RecipeMapper::toDTO)
-                .toList();
+        return RecipeMapper.toDTOList(recipeRepository.findByIngredientsContainingIgnoreCase(ingredient));
     }
 
     @Override
     public List<RecipeResponseDTO> findLastRecipes() {
         Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt"));
-        List<Recipe> recetas = recipeRepository.findAll(pageable).getContent();
-
-        return recetas.stream()
-                .map(RecipeMapper::toDTO)
-                .toList();
+        return RecipeMapper.toDTOList(recipeRepository.findAll(pageable).getContent());
     }
 
     @Override
     public List<RecipeResponseDTO> findTopLikedRecipes() {
         Pageable pageable = PageRequest.of(0, 5);
-        List<Recipe> topLiked = recipeRepository.findTopLiked(pageable);
-
-        return topLiked.stream()
-                .map(RecipeMapper::toDTO)
-                .toList();
+        return RecipeMapper.toDTOList(recipeRepository.findTopLiked(pageable));
     }
 }
