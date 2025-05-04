@@ -18,10 +18,12 @@ public class RecipeMapper {
         dto.setId(recipe.getId());
         dto.setTitle(recipe.getTitle());
         dto.setDescription(recipe.getDescription());
+        dto.setCategory(recipe.getCategory());
         dto.setIngredients(recipe.getIngredients());
         dto.setSteps(recipe.getSteps());
         dto.setImageUrl(recipe.getImageUrl());
         dto.setAuthorName(recipe.getAuthor().getName());
+        dto.setLikes(recipe.getLikes() != null ? recipe.getLikes().size() : 0);
         return dto;
     }
 
@@ -29,6 +31,7 @@ public class RecipeMapper {
         Recipe recipe = new Recipe();
         recipe.setTitle(dto.getTitle());
         recipe.setDescription(dto.getDescription());
+        recipe.setCategory(dto.getCategory());
         recipe.setIngredients(dto.getIngredients());
         recipe.setSteps(dto.getSteps());
         recipe.setImageUrl(dto.getImageUrl());

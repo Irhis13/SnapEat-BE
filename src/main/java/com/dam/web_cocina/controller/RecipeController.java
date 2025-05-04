@@ -64,4 +64,9 @@ public class RecipeController {
     public List<RecipeResponseDTO> getLastRecipes() {
         return recipeService.findLastRecipes();
     }
+
+    @GetMapping("/top-liked")
+    public List<RecipeResponseDTO> getTopLikedRecipes() {
+        return recipeService.findTopLikedRecipes();
+    }
 }

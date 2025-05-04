@@ -25,6 +25,9 @@ public class Recipe {
     @Column(length = 1000)
     private String description;
 
+    @Enumerated(EnumType.STRING)
+    private Category category;
+
     private String ingredients;
 
     @ElementCollection
@@ -41,4 +44,7 @@ public class Recipe {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Like> likes;
 }
