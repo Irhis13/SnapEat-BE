@@ -29,9 +29,16 @@ public class LikeServiceImpl implements ILikeService {
     @Override
     public void like(Long recipeId) {
         User user = authUtil.getCurrentUser();
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new RecipeNotFoundException(recipeId));
 
-        if (!likeRepository.existsByUserAndRecipe(user, getRecipe(recipeId))) {
-            likeRepository.save(new Like(null, user, getRecipe(recipeId), LocalDateTime.now()));
+        boolean alreadyLiked = likeRepository.existsByUserAndRecipe(user, recipe);
+        if (!alreadyLiked) {
+            Like like = new Like();
+            like.setUser(user);
+            like.setRecipe(recipe);
+            like.setLikedAt(LocalDateTime.now());
+            likeRepository.save(like);
         }
     }
 

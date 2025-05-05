@@ -15,5 +15,8 @@ public class RecipeResponseDTO {
     private List<String> steps;
     private String imageUrl;
     private String authorName;
+    private Long authorId;
     private int likes;
+    private boolean likedByCurrentUser;
+    private boolean owner;
 }

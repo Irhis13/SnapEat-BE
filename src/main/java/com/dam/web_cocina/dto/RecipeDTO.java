@@ -16,4 +16,3 @@ public class RecipeDTO {
     private String imageUrl;
     private Long authorId;
 }
-

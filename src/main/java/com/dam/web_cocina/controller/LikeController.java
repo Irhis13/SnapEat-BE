@@ -5,6 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/likes")
 @CrossOrigin(origins = "*")
@@ -18,15 +21,15 @@ public class LikeController {
     }
 
     @PostMapping("/{recipeId}")
-    public ResponseEntity<String> likeRecipe(@PathVariable Long recipeId) {
+    public ResponseEntity<Map<String, String>> likeRecipe(@PathVariable Long recipeId) {
         likeService.like(recipeId);
-        return ResponseEntity.ok("Receta marcada como me gusta");
+        return ResponseEntity.ok(Collections.singletonMap("message", "Receta marcada como me gusta"));
     }
 
     @DeleteMapping("/{recipeId}")
-    public ResponseEntity<String> unlikeRecipe(@PathVariable Long recipeId) {
+    public ResponseEntity<Map<String, String>> unlikeRecipe(@PathVariable Long recipeId) {
         likeService.unlike(recipeId);
-        return ResponseEntity.ok("Me gusta eliminado");
+        return ResponseEntity.ok(Collections.singletonMap("message", "Me gusta eliminado"));
     }
 
     @GetMapping("/count")

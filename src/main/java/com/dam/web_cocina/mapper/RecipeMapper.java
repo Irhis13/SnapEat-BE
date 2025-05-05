@@ -23,6 +23,7 @@ public class RecipeMapper {
         dto.setSteps(recipe.getSteps());
         dto.setImageUrl(recipe.getImageUrl());
         dto.setAuthorName(recipe.getAuthor().getName());
+        dto.setAuthorId(recipe.getAuthor().getId());
         dto.setLikes(recipe.getLikes() != null ? recipe.getLikes().size() : 0);
         return dto;
     }
@@ -39,9 +40,28 @@ public class RecipeMapper {
         return recipe;
     }
 
-    public static List<RecipeResponseDTO> toDTOList(List<Recipe> recipes) {
+    public static List<RecipeResponseDTO> toDTOList(List<Recipe> recipes, User currentUser) {
         return recipes.stream()
-                .map(RecipeMapper::toDTO)
+                .map(recipe -> toDTO(recipe, currentUser))
                 .toList();
+    }
+
+    public static RecipeResponseDTO toDTO(Recipe recipe, User currentUser) {
+        RecipeResponseDTO dto = toDTO(recipe);
+
+        if (currentUser != null) {
+            Long currentUserId = currentUser.getId();
+            dto.setLikedByCurrentUser(
+                    recipe.getLikes() != null &&
+                            recipe.getLikes().stream()
+                                    .anyMatch(like -> like.getUser().getId().equals(currentUserId))
+            );
+            dto.setOwner(recipe.getAuthor().getId().equals(currentUserId));
+        } else {
+            dto.setLikedByCurrentUser(false);
+            dto.setOwner(false);
+        }
+
+        return dto;
     }
 }
