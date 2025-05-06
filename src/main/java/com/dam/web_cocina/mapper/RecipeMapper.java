@@ -51,14 +51,23 @@ public class RecipeMapper {
 
         if (currentUser != null) {
             Long currentUserId = currentUser.getId();
+
             dto.setLikedByCurrentUser(
                     recipe.getLikes() != null &&
                             recipe.getLikes().stream()
                                     .anyMatch(like -> like.getUser().getId().equals(currentUserId))
             );
+
+            dto.setFavoritedByCurrentUser(
+                    recipe.getFavorites() != null &&
+                            recipe.getFavorites().stream()
+                                    .anyMatch(fav -> fav.getUser().getId().equals(currentUserId))
+            );
+
             dto.setOwner(recipe.getAuthor().getId().equals(currentUserId));
         } else {
             dto.setLikedByCurrentUser(false);
+            dto.setFavoritedByCurrentUser(false);
             dto.setOwner(false);
         }
 

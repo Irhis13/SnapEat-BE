@@ -47,4 +47,7 @@ public class Recipe {
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Like> likes;
+
+    @OneToMany(mappedBy = "recipe")
+    private List<Favorite> favorites;
 }

@@ -19,4 +19,5 @@ public class RecipeResponseDTO {
     private int likes;
     private boolean likedByCurrentUser;
     private boolean owner;
+    private boolean favoritedByCurrentUser;
 }
