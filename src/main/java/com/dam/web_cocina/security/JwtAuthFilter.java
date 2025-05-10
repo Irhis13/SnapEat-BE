@@ -31,9 +31,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        String path = request.getServletPath();
-
-        if (path.equals("/auth/login") || path.equals("/api/users/register")) {
+        if (isPublicPath(request)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -60,5 +58,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isPublicPath(HttpServletRequest request) {
+        String path = request.getServletPath();
+        String method = request.getMethod();
+
+        return (path.equals("/auth/login") && method.equals("POST")) ||
+                (path.equals("/api/users/register") && method.equals("POST")) ||
+                (path.startsWith("/api/recipes/latest") && method.equals("GET")) ||
+                (path.startsWith("/api/recipes/top-liked") && method.equals("GET")) ||
+                (path.startsWith("/api/recipes/title") && method.equals("GET")) ||
+                (path.startsWith("/api/recipes/ingredient") && method.equals("GET")) ||
+                (path.equals("/api/recipes") && method.equals("GET")) ||
+                (path.startsWith("/uploads/"));
     }
 }

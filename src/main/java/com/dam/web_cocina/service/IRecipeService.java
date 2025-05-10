@@ -2,12 +2,15 @@ package com.dam.web_cocina.service;
 
 import com.dam.web_cocina.dto.RecipeDTO;
 import com.dam.web_cocina.dto.RecipeResponseDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface IRecipeService {
 
     RecipeResponseDTO save(RecipeDTO dto);
+
+    RecipeResponseDTO saveWithImage(RecipeDTO dto, MultipartFile imagen);
 
     void delete(Long id);
 

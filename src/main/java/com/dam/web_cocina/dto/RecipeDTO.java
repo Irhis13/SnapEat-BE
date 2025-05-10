@@ -14,5 +14,4 @@ public class RecipeDTO {
     private String ingredients;
     private List<String> steps;
     private String imageUrl;
-    private Long authorId;
 }

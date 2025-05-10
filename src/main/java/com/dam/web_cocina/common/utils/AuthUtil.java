@@ -9,9 +9,32 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthUtil {
 
-    public User getCurrentUser() {
+    private AuthUtil() {
+        // Private constructor
+    }
+
+    public static User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        return userDetails.getUser();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            return null;
+        }
+
+        Object principal = auth.getPrincipal();
+        if (principal instanceof CustomUserDetails customUserDetails) {
+            return customUserDetails.getUser();
+        }
+
+        return null;
+    }
+
+    public static User getCurrentUserOrNull() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof CustomUserDetails customUserDetails) {
+            return customUserDetails.getUser();
+        }
+
+        return null;
     }
 }

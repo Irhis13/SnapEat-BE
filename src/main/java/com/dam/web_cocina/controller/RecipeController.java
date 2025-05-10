@@ -2,9 +2,12 @@ package com.dam.web_cocina.controller;
 
 import com.dam.web_cocina.dto.RecipeDTO;
 import com.dam.web_cocina.dto.RecipeResponseDTO;
+import com.dam.web_cocina.service.IImageService;
 import com.dam.web_cocina.service.IRecipeService;
 import com.dam.web_cocina.service.RecipeServiceImpl;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -14,14 +17,25 @@ import java.util.List;
 public class RecipeController {
 
     private final IRecipeService recipeService;
+    private final IImageService imageService;
 
-    public RecipeController(RecipeServiceImpl recipeServiceImpl) {
+
+    public RecipeController(RecipeServiceImpl recipeServiceImpl, IImageService imageService) {
         this.recipeService = recipeServiceImpl;
+        this.imageService = imageService;
     }
 
-    @PostMapping
-    public RecipeResponseDTO createRecipe(@RequestBody RecipeDTO dto) {
-        return recipeService.save(dto);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public RecipeResponseDTO createRecipeMultipart(
+            @RequestPart("receta") RecipeDTO receta,
+            @RequestPart("imagen") MultipartFile imagen
+    ) {
+        return recipeService.saveWithImage(receta, imagen);
+    }
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public RecipeResponseDTO createRecipeJson(@RequestBody RecipeDTO recipeDTO) {
+        return recipeService.save(recipeDTO);
     }
 
     @PutMapping("/{id}")

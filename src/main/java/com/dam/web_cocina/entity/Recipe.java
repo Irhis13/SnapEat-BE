@@ -35,6 +35,7 @@ public class Recipe {
     @Column(name = "step")
     private List<String> steps;
 
+    @Column(length = 1000)
     private String imageUrl;
 
     @ManyToOne

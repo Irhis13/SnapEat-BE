@@ -11,7 +11,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/likes")
 @CrossOrigin(origins = "*")
-@PreAuthorize("isAuthenticated()")
 public class LikeController {
 
     private final ILikeService likeService;
@@ -20,12 +19,14 @@ public class LikeController {
         this.likeService = likeService;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{recipeId}")
     public ResponseEntity<Map<String, String>> likeRecipe(@PathVariable Long recipeId) {
         likeService.like(recipeId);
         return ResponseEntity.ok(Collections.singletonMap("message", "Receta marcada como me gusta"));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{recipeId}")
     public ResponseEntity<Map<String, String>> unlikeRecipe(@PathVariable Long recipeId) {
         likeService.unlike(recipeId);
@@ -37,6 +38,7 @@ public class LikeController {
         return likeService.countLikes(recipeId);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/exists/{recipeId}")
     public boolean isLiked(@PathVariable Long recipeId) {
         return likeService.isLiked(recipeId);
