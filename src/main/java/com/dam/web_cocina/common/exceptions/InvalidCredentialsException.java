@@ -1,11 +1,10 @@
 package com.dam.web_cocina.common.exceptions;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+public class InvalidCredentialsException extends ApiCodeException {
+    public static final int ERROR_CODE = 1003;
+    private static final String MESSAGE = "Correo o contraseña inválidos";
 
-@ResponseStatus(HttpStatus.UNAUTHORIZED)
-public class InvalidCredentialsException extends RuntimeException {
     public InvalidCredentialsException() {
-        super("Invalid email or password");
+        super(MESSAGE, ERROR_CODE);
     }
 }

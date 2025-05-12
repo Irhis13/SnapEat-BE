@@ -1,5 +1,6 @@
 package com.dam.web_cocina.mapper;
 
+import com.dam.web_cocina.common.utils.HashUtil;
 import com.dam.web_cocina.dto.RecipeDTO;
 import com.dam.web_cocina.dto.RecipeResponseDTO;
 import com.dam.web_cocina.entity.Recipe;
@@ -16,6 +17,7 @@ public class RecipeMapper {
     public static RecipeResponseDTO toDTO(Recipe recipe) {
         RecipeResponseDTO dto = new RecipeResponseDTO();
         dto.setId(recipe.getId());
+        dto.setHashedId(HashUtil.encode(recipe.getId()));
         dto.setTitle(recipe.getTitle());
         dto.setDescription(recipe.getDescription());
         dto.setCategory(recipe.getCategory());

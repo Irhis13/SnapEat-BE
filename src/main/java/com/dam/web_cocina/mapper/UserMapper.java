@@ -1,5 +1,6 @@
 package com.dam.web_cocina.mapper;
 
+import com.dam.web_cocina.common.utils.HashUtil;
 import com.dam.web_cocina.dto.UserResponseDTO;
 import com.dam.web_cocina.entity.User;
 
@@ -12,12 +13,16 @@ public class UserMapper {
     }
 
     public static UserResponseDTO toDTO(User user) {
+        String hashedId = HashUtil.encode(user.getId());
+
         return new UserResponseDTO(
                 user.getId(),
+                hashedId,
                 user.getName(),
                 user.getEmail()
         );
     }
+
 
     public static List<UserResponseDTO> toDTOList(List<User> users) {
         return users.stream()

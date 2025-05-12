@@ -1,5 +1,6 @@
 package com.dam.web_cocina.controller;
 
+import com.dam.web_cocina.common.utils.HashUtil;
 import com.dam.web_cocina.dto.RecipeResponseDTO;
 import com.dam.web_cocina.service.IFavoriteService;
 import org.springframework.http.ResponseEntity;
@@ -20,20 +21,23 @@ public class FavoriteController {
         this.favoriteService = favoriteService;
     }
 
-    @PostMapping("/{recipeId}")
-    public ResponseEntity<Void> favorite(@PathVariable Long recipeId) {
+    @PostMapping("/{hashedRecipeId}")
+    public ResponseEntity<Void> favorite(@PathVariable String hashedRecipeId) {
+        Long recipeId = HashUtil.decode(hashedRecipeId);
         favoriteService.favorite(recipeId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{recipeId}")
-    public ResponseEntity<Void> unfavorite(@PathVariable Long recipeId) {
+    @DeleteMapping("/{hashedRecipeId}")
+    public ResponseEntity<Void> unfavorite(@PathVariable String hashedRecipeId) {
+        Long recipeId = HashUtil.decode(hashedRecipeId);
         favoriteService.unfavorite(recipeId);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/exists/{recipeId}")
-    public boolean isFavorite(@PathVariable Long recipeId) {
+    @GetMapping("/exists/{hashedRecipeId}")
+    public boolean isFavorite(@PathVariable String hashedRecipeId) {
+        Long recipeId = HashUtil.decode(hashedRecipeId);
         return favoriteService.isFavorite(recipeId);
     }
 

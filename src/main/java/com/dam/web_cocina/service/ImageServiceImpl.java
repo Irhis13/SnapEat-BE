@@ -1,5 +1,6 @@
 package com.dam.web_cocina.service;
 
+import com.dam.web_cocina.common.exceptions.ImageStorageException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,7 +31,7 @@ public class ImageServiceImpl implements IImageService {
             return backendUrl + "/uploads/" + filename;
 
         } catch (IOException e) {
-            throw new RuntimeException("Error al guardar la imagen", e);
+            throw new ImageStorageException(e.getMessage());
         }
     }
 }

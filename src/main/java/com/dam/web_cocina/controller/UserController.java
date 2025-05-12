@@ -1,5 +1,6 @@
 package com.dam.web_cocina.controller;
 
+import com.dam.web_cocina.common.utils.HashUtil;
 import com.dam.web_cocina.dto.UserDTO;
 import com.dam.web_cocina.dto.UserResponseDTO;
 import com.dam.web_cocina.entity.User;
@@ -25,8 +26,9 @@ public class UserController {
         return userService.save(user);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
+    @DeleteMapping("/{hashedId}")
+    public void deleteUser(@PathVariable String hashedId) {
+        Long id = HashUtil.decode(hashedId);
         userService.delete(id);
     }
 
@@ -35,13 +37,20 @@ public class UserController {
         return userService.register(dto);
     }
 
+    @PutMapping("/{hashedId}")
+    public UserResponseDTO updateUser(@PathVariable String hashedId, @RequestBody UserDTO dto) {
+        Long id = HashUtil.decode(hashedId);
+        return userService.updateUser(id, dto);
+    }
+
     @GetMapping
     public List<UserResponseDTO> listUsers() {
         return userService.findAllDTO();
     }
 
-    @GetMapping("/{id}")
-    public UserResponseDTO getUserById(@PathVariable Long id) {
-        return userService.findByIdDTO(id);
+    @GetMapping("/{hashedId}")
+    public UserResponseDTO getUserById(@PathVariable String hashedId) {
+        Long id = HashUtil.decode(hashedId);
+        return userService.getUserDetailsById(id);
     }
 }

@@ -20,7 +20,9 @@ public interface IUserService {
 
     User register(UserDTO dto);
 
+    UserResponseDTO updateUser(Long id, UserDTO dto);
+
     List<UserResponseDTO> findAllDTO();
 
-    UserResponseDTO findByIdDTO(Long id);
+    UserResponseDTO getUserDetailsById(Long id);
 }

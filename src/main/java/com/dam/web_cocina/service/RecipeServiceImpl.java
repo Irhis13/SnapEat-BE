@@ -1,6 +1,7 @@
 package com.dam.web_cocina.service;
 
 import com.dam.web_cocina.common.exceptions.RecipeNotFoundException;
+import com.dam.web_cocina.common.exceptions.UnauthorizedAccessException;
 import com.dam.web_cocina.common.utils.AuthUtil;
 import com.dam.web_cocina.dto.RecipeDTO;
 import com.dam.web_cocina.dto.RecipeResponseDTO;
@@ -32,26 +33,30 @@ public class RecipeServiceImpl implements IRecipeService {
 
     @Override
     public RecipeResponseDTO save(RecipeDTO dto) {
-        User user = AuthUtil.getCurrentUser();
+        User currentUser = AuthUtil.getCurrentUser();
 
-        if (user == null) {
-            throw new RuntimeException("No authenticated user found");
+        if (currentUser == null) {
+            throw UnauthorizedAccessException.forNotAuthenticated();
         }
 
         Recipe recipe;
 
         if (dto.getId() != null) {
             recipe = recipeRepository.findById(dto.getId())
-                    .orElseThrow(() -> new RuntimeException("Recipe not found with id: " + dto.getId()));
+                    .orElseThrow(() -> new RecipeNotFoundException(dto.getId()));
+
+            if (!recipe.getAuthor().getId().equals(currentUser.getId())) {
+                throw UnauthorizedAccessException.forEdit();
+            }
 
             recipe.setTitle(dto.getTitle());
             recipe.setDescription(dto.getDescription());
             recipe.setIngredients(dto.getIngredients());
             recipe.setSteps(dto.getSteps());
             recipe.setImageUrl(dto.getImageUrl());
-
+            recipe.setCategory(dto.getCategory());
         } else {
-            recipe = RecipeMapper.toEntity(dto, user);
+            recipe = RecipeMapper.toEntity(dto, currentUser);
         }
 
         return RecipeMapper.toDTO(recipeRepository.save(recipe));
@@ -68,7 +73,15 @@ public class RecipeServiceImpl implements IRecipeService {
 
     @Override
     public void delete(Long id) {
-        recipeRepository.deleteById(id);
+        Recipe recipe = recipeRepository.findById(id)
+                .orElseThrow(() -> new RecipeNotFoundException(id));
+
+        User currentUser = AuthUtil.getCurrentUser();
+        if (currentUser == null || !recipe.getAuthor().getId().equals(currentUser.getId())) {
+            throw UnauthorizedAccessException.forDelete();
+        }
+
+        recipeRepository.delete(recipe);
     }
 
     @Override

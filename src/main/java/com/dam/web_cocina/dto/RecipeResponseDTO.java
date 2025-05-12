@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 public class RecipeResponseDTO {
     private Long id;
+    private String hashedId;
     private String title;
     private String description;
     private Category category;

@@ -1,6 +1,7 @@
 package com.dam.web_cocina.service;
 
 import com.dam.web_cocina.common.exceptions.RecipeNotFoundException;
+import com.dam.web_cocina.common.exceptions.UnauthorizedAccessException;
 import com.dam.web_cocina.common.utils.AuthUtil;
 import com.dam.web_cocina.dto.RecipeResponseDTO;
 import com.dam.web_cocina.entity.Favorite;
@@ -21,21 +22,21 @@ public class FavoriteServiceImpl implements IFavoriteService {
 
     private final FavoriteRepository favoriteRepository;
     private final RecipeRepository recipeRepository;
-    private final AuthUtil authUtil;
 
     public FavoriteServiceImpl(
             FavoriteRepository favoriteRepository,
-            RecipeRepository recipeRepository,
-            AuthUtil authUtil)
+            RecipeRepository recipeRepository)
     {
         this.favoriteRepository = favoriteRepository;
         this.recipeRepository = recipeRepository;
-        this.authUtil = authUtil;
     }
 
     @Override
     public void favorite(Long recipeId) {
-        User user = authUtil.getCurrentUser();
+        User user = AuthUtil.getCurrentUser();
+        if (user == null) {
+            throw UnauthorizedAccessException.forNotAuthenticated();
+        }
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RecipeNotFoundException(recipeId));
         if (!favoriteRepository.existsByUserAndRecipe(user, recipe)) {
@@ -45,7 +46,10 @@ public class FavoriteServiceImpl implements IFavoriteService {
 
     @Override
     public void unfavorite(Long recipeId) {
-        User user = authUtil.getCurrentUser();
+        User user = AuthUtil.getCurrentUser();
+        if (user == null) {
+            throw UnauthorizedAccessException.forNotAuthenticated();
+        }
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RecipeNotFoundException(recipeId));
         favoriteRepository.deleteByUserAndRecipe(user, recipe);
@@ -53,7 +57,7 @@ public class FavoriteServiceImpl implements IFavoriteService {
 
     @Override
     public boolean isFavorite(Long recipeId) {
-        User user = authUtil.getCurrentUser();
+        User user = AuthUtil.getCurrentUser();
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RecipeNotFoundException(recipeId));
         return favoriteRepository.existsByUserAndRecipe(user, recipe);
@@ -61,7 +65,7 @@ public class FavoriteServiceImpl implements IFavoriteService {
 
     @Override
     public List<RecipeResponseDTO> getFavoritesByCurrentUser() {
-        User user = authUtil.getCurrentUser();
+        User user = AuthUtil.getCurrentUser();
         List<Favorite> favorites = favoriteRepository.findByUser(user);
         return favorites.stream()
                 .map(Favorite::getRecipe)

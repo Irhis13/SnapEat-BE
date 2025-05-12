@@ -1,5 +1,7 @@
 package com.dam.web_cocina.service;
 
+import com.dam.web_cocina.common.exceptions.EmailUsedException;
+import com.dam.web_cocina.common.exceptions.EntityNotFoundException;
 import com.dam.web_cocina.entity.Role;
 import com.dam.web_cocina.dto.UserDTO;
 import com.dam.web_cocina.dto.UserResponseDTO;
@@ -40,17 +42,26 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public User save(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (user.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         return userRepository.save(user);
     }
 
     @Override
     public void delete(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new EntityNotFoundException("Usuario", "ID", id);
+        }
         userRepository.deleteById(id);
     }
 
     @Override
     public User register(UserDTO dto) {
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new EmailUsedException(dto.getEmail());
+        }
+
         User user = new User();
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
@@ -59,15 +70,34 @@ public class UserServiceImpl implements IUserService {
         return userRepository.save(user);
     }
 
+    public UserResponseDTO updateUser(Long id, UserDTO dto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario", "ID", id));
+
+        user.setName(dto.getName());
+        if (!user.getEmail().equals(dto.getEmail())) {
+            if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+                throw new EmailUsedException(dto.getEmail());
+            }
+            user.setEmail(dto.getEmail());
+        }
+
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        return UserMapper.toDTO(userRepository.save(user));
+    }
+
     @Override
     public List<UserResponseDTO> findAllDTO() {
         return UserMapper.toDTOList(userRepository.findAll());
     }
 
     @Override
-    public UserResponseDTO findByIdDTO(Long id) {
+    public UserResponseDTO getUserDetailsById(Long id) {
         return userRepository.findById(id)
                 .map(UserMapper::toDTO)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuario", "ID", id));
     }
 }

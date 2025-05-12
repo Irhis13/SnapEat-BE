@@ -1,5 +1,7 @@
 package com.dam.web_cocina.controller;
 
+import com.dam.web_cocina.common.utils.HashUtil;
+import com.dam.web_cocina.dto.RecipeResponseDTO;
 import com.dam.web_cocina.service.ILikeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,27 +22,31 @@ public class LikeController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/{recipeId}")
-    public ResponseEntity<Map<String, String>> likeRecipe(@PathVariable Long recipeId) {
-        likeService.like(recipeId);
-        return ResponseEntity.ok(Collections.singletonMap("message", "Receta marcada como me gusta"));
+    @PostMapping("/{hashedRecipeId}")
+    public ResponseEntity<RecipeResponseDTO> likeRecipe(@PathVariable String hashedRecipeId) {
+        Long recipeId = HashUtil.decode(hashedRecipeId);
+        RecipeResponseDTO dto = likeService.like(recipeId);
+        return ResponseEntity.ok(dto);
     }
 
     @PreAuthorize("isAuthenticated()")
-    @DeleteMapping("/{recipeId}")
-    public ResponseEntity<Map<String, String>> unlikeRecipe(@PathVariable Long recipeId) {
+    @DeleteMapping("/{hashedRecipeId}")
+    public ResponseEntity<Map<String, String>> unlikeRecipe(@PathVariable String hashedRecipeId) {
+        Long recipeId = HashUtil.decode(hashedRecipeId);
         likeService.unlike(recipeId);
         return ResponseEntity.ok(Collections.singletonMap("message", "Me gusta eliminado"));
     }
 
     @GetMapping("/count")
-    public long countLikes(@RequestParam Long recipeId) {
+    public long countLikes(@RequestParam String hashedRecipeId) {
+        Long recipeId = HashUtil.decode(hashedRecipeId);
         return likeService.countLikes(recipeId);
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/exists/{recipeId}")
-    public boolean isLiked(@PathVariable Long recipeId) {
+    @GetMapping("/exists/{hashedRecipeId}")
+    public boolean isLiked(@PathVariable String hashedRecipeId) {
+        Long recipeId = HashUtil.decode(hashedRecipeId);
         return likeService.isLiked(recipeId);
     }
 }
