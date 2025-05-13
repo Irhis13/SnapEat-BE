@@ -1,6 +1,7 @@
 package com.dam.web_cocina.service;
 
 import com.dam.web_cocina.common.exceptions.ImageStorageException;
+import com.dam.web_cocina.common.utils.ImageUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +23,20 @@ public class ImageServiceImpl implements IImageService {
     @Override
     public String saveImage(MultipartFile file) {
         try {
-            String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            ImageUtil.validateImage(file);
+
+            String contentType = file.getContentType();
+            if (contentType == null) {
+                throw ImageStorageException.forUnsupportedFormat("null");
+            }
+
+            String extension = ImageUtil.getExtension(contentType);
+            String originalName = file.getOriginalFilename();
+            String safeName = originalName != null
+                    ? originalName.replaceAll("[^a-zA-Z0-9.-]", "_")
+                    : "imagen";
+            String filename = UUID.randomUUID() + "_" + safeName + extension;
+
             Path uploadPath = Paths.get(UPLOAD_DIR);
             Files.createDirectories(uploadPath);
             Path filePath = uploadPath.resolve(filename);
@@ -31,7 +45,7 @@ public class ImageServiceImpl implements IImageService {
             return backendUrl + "/uploads/" + filename;
 
         } catch (IOException e) {
-            throw new ImageStorageException(e.getMessage());
+            throw ImageStorageException.forSavingFailure(e.getMessage());
         }
     }
 }

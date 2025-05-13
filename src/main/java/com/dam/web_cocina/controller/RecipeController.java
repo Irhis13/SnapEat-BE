@@ -1,12 +1,16 @@
 package com.dam.web_cocina.controller;
 
+import com.dam.web_cocina.common.annotations.IsImageFormat;
+import com.dam.web_cocina.common.annotations.MaxSizeFile;
 import com.dam.web_cocina.common.utils.HashUtil;
 import com.dam.web_cocina.dto.RecipeDTO;
 import com.dam.web_cocina.dto.RecipeResponseDTO;
 import com.dam.web_cocina.service.IRecipeService;
 import com.dam.web_cocina.service.RecipeServiceImpl;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,13 +25,16 @@ public class RecipeController {
 
     private final IRecipeService recipeService;
 
-    @ExceptionHandler(IllegalArgumentException.class)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleIllegalArgumentException(IllegalArgumentException e) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", "Error de validación");
-        response.put("mensaje", e.getMessage());
-        return response;
+    public Map<String, String> handleValidationErrors(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(
+                error -> errors.put(error.getField(),
+                        error.getDefaultMessage())
+        );
+
+        return errors;
     }
 
     public RecipeController(RecipeServiceImpl recipeServiceImpl) {
@@ -36,21 +43,35 @@ public class RecipeController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public RecipeResponseDTO createRecipeMultipart(
-            @RequestPart("receta") RecipeDTO receta,
-            @RequestPart("imagen") MultipartFile imagen
+            @Valid @RequestPart("receta") RecipeDTO receta,
+            @IsImageFormat @MaxSizeFile(size = 2048)
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen
     ) {
         return recipeService.saveWithImage(receta, imagen);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public RecipeResponseDTO createRecipeJson(@RequestBody RecipeDTO recipeDTO) {
+    public RecipeResponseDTO createRecipeJson(@Valid @RequestBody RecipeDTO recipeDTO) {
         return recipeService.save(recipeDTO);
     }
 
-    @PutMapping("/{hashedId}")
-    public RecipeResponseDTO updateRecipe(@PathVariable String hashedId, @RequestBody RecipeDTO dto) {
+    @PutMapping(value = "/{hashedId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public RecipeResponseDTO updateRecipeJson(
+            @PathVariable String hashedId,
+            @Valid @RequestBody RecipeDTO dto
+    ) {
         dto.setId(HashUtil.decode(hashedId));
         return recipeService.save(dto);
+    }
+
+    @PutMapping(value = "/{hashedId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public RecipeResponseDTO updateRecipeMultipart(
+            @PathVariable String hashedId,
+            @Valid @RequestPart("receta") RecipeDTO receta,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen
+    ) {
+        receta.setId(HashUtil.decode(hashedId));
+        return recipeService.saveWithImage(receta, imagen);
     }
 
     @DeleteMapping("/{hashedId}")
