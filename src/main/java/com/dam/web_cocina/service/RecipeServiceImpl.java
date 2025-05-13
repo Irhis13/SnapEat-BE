@@ -8,6 +8,8 @@ import com.dam.web_cocina.dto.RecipeResponseDTO;
 import com.dam.web_cocina.entity.Recipe;
 import com.dam.web_cocina.entity.User;
 import com.dam.web_cocina.mapper.RecipeMapper;
+import com.dam.web_cocina.repository.FavoriteRepository;
+import com.dam.web_cocina.repository.LikeRepository;
 import com.dam.web_cocina.repository.RecipeRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -20,15 +22,19 @@ import java.util.List;
 @Service
 public class RecipeServiceImpl implements IRecipeService {
 
-    private final RecipeRepository recipeRepository;
     private final IImageService imageService;
+    private final RecipeRepository recipeRepository;
+    private final LikeRepository likeRepository;
+    private final FavoriteRepository favoriteRepository;
 
     public RecipeServiceImpl(
-            RecipeRepository recipeRepository,
-            IImageService imageService
+            IImageService imageService, RecipeRepository recipeRepository,
+            LikeRepository likeRepository, FavoriteRepository favoriteRepository
     ) {
-        this.recipeRepository = recipeRepository;
         this.imageService = imageService;
+        this.recipeRepository = recipeRepository;
+        this.likeRepository = likeRepository;
+        this.favoriteRepository = favoriteRepository;
     }
 
     @Override
@@ -82,6 +88,8 @@ public class RecipeServiceImpl implements IRecipeService {
             throw UnauthorizedAccessException.forDelete();
         }
 
+        likeRepository.deleteByRecipeId(id);
+        favoriteRepository.deleteByRecipeId(id);
         recipeRepository.delete(recipe);
     }
 
