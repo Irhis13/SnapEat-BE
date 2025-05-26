@@ -2,14 +2,20 @@ package com.dam.web_cocina.service;
 
 import com.dam.web_cocina.common.exceptions.EmailUsedException;
 import com.dam.web_cocina.common.exceptions.EntityNotFoundException;
+import com.dam.web_cocina.common.exceptions.UnauthorizedAccessException;
+import com.dam.web_cocina.common.utils.AuthUtil;
+import com.dam.web_cocina.dto.UserProfileDTO;
 import com.dam.web_cocina.entity.Role;
 import com.dam.web_cocina.dto.UserDTO;
 import com.dam.web_cocina.dto.UserResponseDTO;
 import com.dam.web_cocina.entity.User;
+import com.dam.web_cocina.entity.UserAvatar;
 import com.dam.web_cocina.mapper.UserMapper;
+import com.dam.web_cocina.repository.UserAvatarRepository;
 import com.dam.web_cocina.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,11 +24,15 @@ import java.util.Optional;
 public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
+    private final UserAvatarRepository userAvatarRepository;
     private final PasswordEncoder passwordEncoder;
+    private final IImageService imageService;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, UserAvatarRepository userAvatarRepository, PasswordEncoder passwordEncoder, IImageService imageService) {
         this.userRepository = userRepository;
+        this.userAvatarRepository = userAvatarRepository;
         this.passwordEncoder = passwordEncoder;
+        this.imageService = imageService;
     }
 
     @Override
@@ -99,5 +109,89 @@ public class UserServiceImpl implements IUserService {
         return userRepository.findById(id)
                 .map(UserMapper::toDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario", "ID", id));
+    }
+
+    @Override
+    public UserResponseDTO updateProfileWithImage(UserProfileDTO dto, MultipartFile imagen) {
+        User currentUser = AuthUtil.getCurrentUser();
+
+        if (currentUser == null) {
+            throw UnauthorizedAccessException.forNotAuthenticated();
+        }
+
+        if (dto.getName() != null && !dto.getName().isBlank()) {
+            currentUser.setName(dto.getName());
+        }
+
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            currentUser.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        if (imagen != null && !imagen.isEmpty()) {
+            String imageUrl = imageService.saveImage(imagen);
+            currentUser.setProfileImage(imageUrl);
+
+            boolean alreadyExists = userAvatarRepository
+                    .findByUserId(currentUser.getId())
+                    .stream()
+                    .anyMatch(ua -> ua.getImageUrl().equals(imageUrl));
+
+            if (!alreadyExists) {
+                UserAvatar avatar = new UserAvatar();
+                avatar.setImageUrl(imageUrl);
+                avatar.setUser(currentUser);
+                userAvatarRepository.save(avatar);
+            }
+        } else if (dto.getImageUrl() != null && !dto.getImageUrl().isBlank()) {
+            currentUser.setProfileImage(dto.getImageUrl());
+        }
+
+        return UserMapper.toDTO(userRepository.save(currentUser));
+    }
+
+    @Override
+    public List<String> getUserAvatars() {
+        User currentUser = AuthUtil.getCurrentUser();
+
+        if (currentUser == null) {
+            throw UnauthorizedAccessException.forNotAuthenticated();
+        }
+
+        return userAvatarRepository.findByUserId(currentUser.getId())
+                .stream()
+                .map(UserAvatar::getImageUrl)
+                .toList();
+    }
+
+    @Override
+    public UserResponseDTO getCurrentUserProfile() {
+        User currentUser = AuthUtil.getCurrentUser();
+
+        if (currentUser == null) {
+            throw UnauthorizedAccessException.forNotAuthenticated();
+        }
+
+        return UserMapper.toDTO(currentUser);
+    }
+
+    @Override
+    public void deleteUserAvatar(String imageUrl) {
+        User currentUser = AuthUtil.getCurrentUser();
+        if (currentUser == null) {
+            throw UnauthorizedAccessException.forNotAuthenticated();
+        }
+
+        List<UserAvatar> avatars = userAvatarRepository.findByUserId(currentUser.getId());
+
+        UserAvatar toDelete = avatars.stream()
+                .filter(ua -> ua.getImageUrl().equals(imageUrl))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Avatar", "URL", imageUrl));
+
+        if (imageUrl.equals(currentUser.getProfileImage())) {
+            throw new IllegalStateException("No se puede eliminar el avatar actualmente en uso.");
+        }
+
+        userAvatarRepository.delete(toDelete);
     }
 }

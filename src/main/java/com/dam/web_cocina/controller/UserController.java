@@ -2,11 +2,15 @@ package com.dam.web_cocina.controller;
 
 import com.dam.web_cocina.common.utils.HashUtil;
 import com.dam.web_cocina.dto.UserDTO;
+import com.dam.web_cocina.dto.UserProfileDTO;
 import com.dam.web_cocina.dto.UserResponseDTO;
 import com.dam.web_cocina.entity.User;
 import com.dam.web_cocina.service.IUserService;
 import com.dam.web_cocina.service.UserServiceImpl;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -52,5 +56,32 @@ public class UserController {
     public UserResponseDTO getUserById(@PathVariable String hashedId) {
         Long id = HashUtil.decode(hashedId);
         return userService.getUserDetailsById(id);
+    }
+
+    @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public UserResponseDTO updateUserProfile(
+            @RequestPart("perfil") UserProfileDTO perfilDTO,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen
+    ) {
+        return userService.updateProfileWithImage(perfilDTO, imagen);
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public UserResponseDTO getCurrentUserProfile() {
+        return userService.getCurrentUserProfile();
+    }
+
+    @GetMapping("/me/avatars")
+    @PreAuthorize("isAuthenticated()")
+    public List<String> getUserAvatars() {
+        return userService.getUserAvatars();
+    }
+
+    @DeleteMapping("/me/avatars")
+    @PreAuthorize("isAuthenticated()")
+    public void deleteUserAvatarFromMe(@RequestParam String imageUrl) {
+        userService.deleteUserAvatar(imageUrl);
     }
 }

@@ -13,4 +13,5 @@ public class UserResponseDTO {
     private String hashedId;
     private String name;
     private String email;
+    private String profileImage;
 }

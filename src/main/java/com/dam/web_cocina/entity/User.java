@@ -29,6 +29,9 @@ public class User implements Serializable {
 
     private String password;
 
+    @Column(name = "profile_image")
+    private String profileImage;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 }

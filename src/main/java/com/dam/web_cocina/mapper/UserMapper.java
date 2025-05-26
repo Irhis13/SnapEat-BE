@@ -19,7 +19,8 @@ public class UserMapper {
                 user.getId(),
                 hashedId,
                 user.getName(),
-                user.getEmail()
+                user.getEmail(),
+                user.getProfileImage()
         );
     }
 
