@@ -24,7 +24,7 @@ public class RecipeMapper {
         dto.setIngredients(recipe.getIngredients());
         dto.setSteps(recipe.getSteps());
         dto.setImageUrl(recipe.getImageUrl());
-        dto.setAuthorName(recipe.getAuthor().getName());
+        dto.setAuthorName(recipe.getAuthor().getUsername());
         dto.setAuthorId(recipe.getAuthor().getId());
         dto.setLikes(recipe.getLikes() != null ? recipe.getLikes().size() : 0);
         return dto;

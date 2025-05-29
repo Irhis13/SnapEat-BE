@@ -18,7 +18,10 @@ public class UserMapper {
         return new UserResponseDTO(
                 user.getId(),
                 hashedId,
-                user.getName(),
+                user.getUsername(),
+                user.getNombre(),
+                user.getApellidos(),
+                user.getGenero() != null ? user.getGenero().name() : null,
                 user.getEmail(),
                 user.getProfileImage()
         );

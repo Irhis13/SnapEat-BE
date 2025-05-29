@@ -35,4 +35,6 @@ public interface IUserService {
     UserResponseDTO getCurrentUserProfile();
 
     void deleteUserAvatar(String imageUrl);
+
+    boolean isUsernameAvailable(String username);
 }

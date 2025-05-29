@@ -7,6 +7,7 @@ import com.dam.web_cocina.dto.UserResponseDTO;
 import com.dam.web_cocina.entity.User;
 import com.dam.web_cocina.service.IUserService;
 import com.dam.web_cocina.service.UserServiceImpl;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -61,7 +62,7 @@ public class UserController {
     @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("isAuthenticated()")
     public UserResponseDTO updateUserProfile(
-            @RequestPart("perfil") UserProfileDTO perfilDTO,
+            @RequestPart("perfil") @Valid UserProfileDTO perfilDTO,
             @RequestPart(value = "imagen", required = false) MultipartFile imagen
     ) {
         return userService.updateProfileWithImage(perfilDTO, imagen);
@@ -83,5 +84,11 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     public void deleteUserAvatarFromMe(@RequestParam String imageUrl) {
         userService.deleteUserAvatar(imageUrl);
+    }
+
+    @GetMapping("/check-username")
+    @PreAuthorize("isAuthenticated()")
+    public boolean isUsernameAvailable(@RequestParam String username) {
+        return userService.isUsernameAvailable(username);
     }
 }

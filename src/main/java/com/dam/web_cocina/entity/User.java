@@ -22,7 +22,8 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @Column(unique = true, nullable = false)
+    private String username;
 
     @Column(unique = true)
     private String email;
@@ -31,6 +32,15 @@ public class User implements Serializable {
 
     @Column(name = "profile_image")
     private String profileImage;
+
+    @Column(length = 60)
+    private String nombre;
+
+    @Column(length = 100)
+    private String apellidos;
+
+    @Enumerated(EnumType.STRING)
+    private Genero genero;
 
     @Enumerated(EnumType.STRING)
     private Role role;

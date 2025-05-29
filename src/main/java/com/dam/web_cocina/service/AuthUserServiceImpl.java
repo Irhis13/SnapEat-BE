@@ -17,9 +17,11 @@ public class AuthUserServiceImpl implements IAuthUserService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(email));
+    public UserDetails loadUserByUsername(String input) {
+        User user = userRepository.findByEmail(input)
+                .or(() -> userRepository.findByUsername(input))
+                .orElseThrow(() -> new UserNotFoundException("email/username", input));
+
         return new CustomUserDetails(user);
     }
 }

@@ -8,9 +8,15 @@ import lombok.Data;
 @Data
 public class UserDTO {
 
-    @NotBlank(message = "El nombre es obligatorio")
-    @Size(max = 30, message = "El nombre no puede tener más de 30 caracteres")
-    private String name;
+    @NotBlank(message = "El nombre de usuario es obligatorio")
+    @Size(max = 30, message = "El nombre de usuario no puede tener más de 30 caracteres")
+    private String username;
+
+    private String nombre;
+
+    private String apellidos;
+
+    private String genero;
 
     @NotBlank(message = "El email es obligatorio")
     @Email(message = "Email no válido")

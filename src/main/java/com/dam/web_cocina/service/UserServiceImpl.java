@@ -1,10 +1,9 @@
 package com.dam.web_cocina.service;
 
-import com.dam.web_cocina.common.exceptions.EmailUsedException;
-import com.dam.web_cocina.common.exceptions.EntityNotFoundException;
-import com.dam.web_cocina.common.exceptions.UnauthorizedAccessException;
+import com.dam.web_cocina.common.exceptions.*;
 import com.dam.web_cocina.common.utils.AuthUtil;
 import com.dam.web_cocina.dto.UserProfileDTO;
+import com.dam.web_cocina.entity.Genero;
 import com.dam.web_cocina.entity.Role;
 import com.dam.web_cocina.dto.UserDTO;
 import com.dam.web_cocina.dto.UserResponseDTO;
@@ -72,8 +71,12 @@ public class UserServiceImpl implements IUserService {
             throw new EmailUsedException(dto.getEmail());
         }
 
+        if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
+            throw new UsernameUsedException(dto.getUsername());
+        }
+
         User user = new User();
-        user.setName(dto.getName());
+        user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(Role.USER);
@@ -84,7 +87,7 @@ public class UserServiceImpl implements IUserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario", "ID", id));
 
-        user.setName(dto.getName());
+        user.setUsername(dto.getUsername());
         if (!user.getEmail().equals(dto.getEmail())) {
             if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
                 throw new EmailUsedException(dto.getEmail());
@@ -119,8 +122,26 @@ public class UserServiceImpl implements IUserService {
             throw UnauthorizedAccessException.forNotAuthenticated();
         }
 
-        if (dto.getName() != null && !dto.getName().isBlank()) {
-            currentUser.setName(dto.getName());
+        if (dto.getUsername() != null && !dto.getUsername().isBlank()) {
+            if (!dto.getUsername().equals(currentUser.getUsername())
+                    && userRepository.findByUsername(dto.getUsername()).isPresent()) {
+                throw new UsernameUsedException(dto.getUsername());
+            }
+            currentUser.setUsername(dto.getUsername());
+        }
+
+        if (dto.getNombre() != null)
+            currentUser.setNombre(dto.getNombre());
+
+        if (dto.getApellidos() != null)
+            currentUser.setApellidos(dto.getApellidos());
+
+        if (dto.getGenero() != null && !dto.getGenero().isBlank()) {
+            try {
+                currentUser.setGenero(Genero.valueOf(dto.getGenero()));
+            } catch (IllegalArgumentException ex) {
+                throw new InvalidGeneroException(dto.getGenero());
+            }
         }
 
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
@@ -193,5 +214,16 @@ public class UserServiceImpl implements IUserService {
         }
 
         userAvatarRepository.delete(toDelete);
+    }
+
+    @Override
+    public boolean isUsernameAvailable(String username) {
+        User currentUser = AuthUtil.getCurrentUser();
+
+        if (currentUser != null && currentUser.getUsername().equals(username)) {
+            return true;
+        }
+
+        return userRepository.findByUsername(username).isEmpty();
     }
 }
