@@ -78,8 +78,22 @@ public class UserServiceImpl implements IUserService {
         User user = new User();
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
+        user.setName(dto.getName());
+        user.setSurname(dto.getSurname());
+
+        if (dto.getGenero() != null && !dto.getGenero().isBlank()) {
+            try {
+                user.setGenero(Genero.valueOf(dto.getGenero().toUpperCase()));
+            } catch (IllegalArgumentException ex) {
+                throw new IllegalArgumentException("Género no válido: " + dto.getGenero());
+            }
+        } else {
+            user.setGenero(null);
+        }
+
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(Role.USER);
+
         return userRepository.save(user);
     }
 
@@ -130,11 +144,11 @@ public class UserServiceImpl implements IUserService {
             currentUser.setUsername(dto.getUsername());
         }
 
-        if (dto.getNombre() != null)
-            currentUser.setNombre(dto.getNombre());
+        if (dto.getName() != null)
+            currentUser.setName(dto.getName());
 
-        if (dto.getApellidos() != null)
-            currentUser.setApellidos(dto.getApellidos());
+        if (dto.getSurname() != null)
+            currentUser.setSurname(dto.getSurname());
 
         if (dto.getGenero() != null && !dto.getGenero().isBlank()) {
             try {

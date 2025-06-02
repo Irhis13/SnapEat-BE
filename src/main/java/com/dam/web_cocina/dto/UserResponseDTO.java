@@ -12,8 +12,8 @@ public class UserResponseDTO {
     private Long id;
     private String hashedId;
     private String username;
-    private String nombre;
-    private String apellidos;
+    private String name;
+    private String surname;
     private String genero;
     private String email;
     private String profileImage;

@@ -19,8 +19,8 @@ public class UserMapper {
                 user.getId(),
                 hashedId,
                 user.getUsername(),
-                user.getNombre(),
-                user.getApellidos(),
+                user.getName(),
+                user.getSurname(),
                 user.getGenero() != null ? user.getGenero().name() : null,
                 user.getEmail(),
                 user.getProfileImage()

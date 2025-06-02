@@ -28,19 +28,19 @@ public class User implements Serializable {
     @Column(unique = true)
     private String email;
 
-    private String password;
+    @Column(length = 60)
+    private String name;
+
+    @Column(length = 100)
+    private String surname;
+
+    @Enumerated(EnumType.STRING)
+    private Genero genero;
 
     @Column(name = "profile_image")
     private String profileImage;
 
-    @Column(length = 60)
-    private String nombre;
-
-    @Column(length = 100)
-    private String apellidos;
-
-    @Enumerated(EnumType.STRING)
-    private Genero genero;
+    private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;

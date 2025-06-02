@@ -15,16 +15,11 @@ public class AuthUtil {
 
     public static User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if (auth == null || !auth.isAuthenticated()) {
-            return null;
-        }
-
+        if (auth == null || !auth.isAuthenticated()) return null;
         Object principal = auth.getPrincipal();
         if (principal instanceof CustomUserDetails customUserDetails) {
             return customUserDetails.getUser();
         }
-
         return null;
     }
 

@@ -12,9 +12,9 @@ public class UserDTO {
     @Size(max = 30, message = "El nombre de usuario no puede tener más de 30 caracteres")
     private String username;
 
-    private String nombre;
+    private String name;
 
-    private String apellidos;
+    private String surname;
 
     private String genero;
 

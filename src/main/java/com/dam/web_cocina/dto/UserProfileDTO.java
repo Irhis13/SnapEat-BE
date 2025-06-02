@@ -7,9 +7,9 @@ public class UserProfileDTO {
 
      private String username;
 
-    private String nombre;
+    private String name;
 
-    private String apellidos;
+    private String surname;
 
     private String genero;
 

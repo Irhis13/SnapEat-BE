@@ -1,10 +1,12 @@
 package com.dam.web_cocina.controller;
 
 import com.dam.web_cocina.common.utils.HashUtil;
+import com.dam.web_cocina.dto.LoginResponseDTO;
 import com.dam.web_cocina.dto.UserDTO;
 import com.dam.web_cocina.dto.UserProfileDTO;
 import com.dam.web_cocina.dto.UserResponseDTO;
 import com.dam.web_cocina.entity.User;
+import com.dam.web_cocina.security.JwtUtil;
 import com.dam.web_cocina.service.IUserService;
 import com.dam.web_cocina.service.UserServiceImpl;
 import jakarta.validation.Valid;
@@ -21,9 +23,11 @@ import java.util.List;
 public class UserController {
 
     private final IUserService userService;
+    private final JwtUtil jwtUtil;
 
-    public UserController(UserServiceImpl userServiceImpl) {
+    public UserController(UserServiceImpl userServiceImpl, JwtUtil jwtUtil) {
         this.userService = userServiceImpl;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping
@@ -38,8 +42,10 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public User registerUser(@RequestBody UserDTO dto) {
-        return userService.register(dto);
+    public LoginResponseDTO registerUser(@RequestBody @Valid UserDTO dto) {
+        userService.register(dto);
+        String token = jwtUtil.generateToken(dto.getEmail());
+        return new LoginResponseDTO(token);
     }
 
     @PutMapping("/{hashedId}")

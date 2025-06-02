@@ -18,7 +18,7 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
     void deleteByUserAndRecipe(User user, Recipe recipe);
 
-    List<Favorite> findByUser(User user);
+    List<Favorite> findByUserId(Long userId);
 
     @Modifying
     @Transactional

@@ -12,7 +12,6 @@ import java.util.List;
 @Repository
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
-    // Buscar recetas por ID del autor
     List<Recipe> findByAuthorId(Long authorId);
 
     List<Recipe> findByTitleContainingIgnoreCase(String title);
