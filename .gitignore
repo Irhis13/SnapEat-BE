@@ -35,3 +35,6 @@ build/
 ### Configuration ###
 src/main/resources/application.properties
 
+### Avatares ###
+uploads
+
