@@ -76,7 +76,7 @@ Usuarios   | /api/usuarios     | Perfil de usuario: datos, avatar, contraseña, 
 ### 2. Clonar el repositorio
 
 ```bash
-git clone https://github.com/Irhis13/SnapEat.git
+git clone https://github.com/Irhis13/SnapEat-BE.git
 ```
 
 ### 3. Application properties
